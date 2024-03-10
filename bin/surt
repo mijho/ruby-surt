@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'surt'
+puts Surt.generate_surt(ARGV[0])
