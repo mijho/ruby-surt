@@ -1,4 +1,11 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require 'surt'
-puts Surt.generate_surt(ARGV[0])
+require "surt"
+
+if ARGV.empty? || %w[-h --help].include?(ARGV.first)
+  puts "Usage: surt URL [URL...]"
+  exit(ARGV.empty? ? 1 : 0)
+end
+
+ARGV.each { |url| puts Surt.generate_surt(url) }

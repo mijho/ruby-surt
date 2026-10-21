@@ -1,28 +1,31 @@
+# frozen_string_literal: true
+
+require "uri"
+
 module WebUrl
   class InvalidWebUrlError < StandardError; end
 
-  SUPPORTED_SCHEMES = ["http", "https"]
+  SUPPORTED_SCHEMES = %w[http https].freeze
 
   extend self
 
+  # Parses +value+ and returns a URI::Generic.
+  # Raises InvalidWebUrlError unless it is an absolute http(s) URL with a host.
   def parse(value)
-    if value.nil? || value.strip.empty?
-      raise InvalidWebUrlError, "Value can't be blank"
-    end
+    raise InvalidWebUrlError, "Value can't be blank" if value.nil? || value.strip.empty?
 
     uri = URI.parse(value)
+    scheme = uri.scheme&.downcase
 
-    unless SUPPORTED_SCHEMES.include?(uri.scheme)
+    unless SUPPORTED_SCHEMES.include?(scheme)
       raise InvalidWebUrlError, "Invalid scheme '#{uri.scheme}', must be one of #{SUPPORTED_SCHEMES.join(', ')}"
     end
 
-    if uri.host.nil? || uri.host.strip.empty?
-      raise InvalidWebUrlError, "Host is blank"
-    end
+    raise InvalidWebUrlError, "Host is blank" if uri.host.nil? || uri.host.strip.empty?
 
     uri
-  rescue URI::InvalidURIError => err
-    raise InvalidWebUrlError, err.message
+  rescue URI::Error => e
+    raise InvalidWebUrlError, e.message
   end
 
   def valid?(value)
